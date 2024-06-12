@@ -1,8 +1,7 @@
 "use client";
 import { saveAs } from "file-saver";
-import React, { useRef } from "react";
-import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
+import React, { useRef, useState } from "react";
+import Chart from "./Chart";
 import html2canvas from "html2canvas";
 import {
   Presentation,
@@ -17,6 +16,7 @@ import {
 
 function DownloadButton() {
   const chartRef = useRef(null);
+  const [downloadState, setDownloadState] = useState(false);
 
   function generatePresentation(image) {
     const pptx = (
@@ -41,32 +41,20 @@ function DownloadButton() {
     });
   }
   const captureChart = async () => {
-    const chartElement = chartRef.current.container.current;
+    setDownloadState(true);
+    const chartElement = chartRef.current;
     const canvas = await html2canvas(chartElement);
     const image = canvas.toDataURL("image/png");
     generatePresentation(image);
   };
 
-  const options = {
-    title: {
-      text: "My Chart",
-    },
-    series: [
-      {
-        name: "My Data",
-        data: [1, 2, 3, 4, 5],
-      },
-    ],
-  };
   return (
     <div>
-      <div style={{ position: "absolute", left: "-9999px" }}>
-        <HighchartsReact
-          ref={chartRef}
-          highcharts={Highcharts}
-          options={options}
-        />
-      </div>
+      {downloadState && (
+        <div ref={chartRef} style={{ position: "absolute", left: "-9999px" }}>
+          <Chart />
+        </div>
+      )}
       <button
         onClick={captureChart}
         className="border-2 cursor-crosshair border-solid"
